@@ -19,3 +19,27 @@ def test_parse_response_dedupes_and_handles_no_annotations():
     result = parse_response(SimpleNamespace(output=[message]))
     assert result["answer"] == "無引用的回答。"
     assert result["citations"] == []
+
+from app.rag import answer_question
+
+class _FakeResponses:
+    def __init__(self, response):
+        self._response = response
+        self.calls = []
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return self._response
+
+class _FakeClient:
+    def __init__(self, response):
+        self.responses = _FakeResponses(response)
+
+def test_answer_question_calls_file_search_with_vector_store():
+    client = _FakeClient(_fake_response())
+    result = answer_question(client, "加班費怎麼算?", vector_store_id="vs_123", model="gpt-4o-mini")
+    assert result["answer"] == "加班費依第24條計算。"
+    assert result["citations"] == ["勞動基準法-第24條.txt"]
+    call = client.responses.calls[0]
+    assert call["model"] == "gpt-4o-mini"
+    assert call["input"] == "加班費怎麼算?"
+    assert call["tools"] == [{"type": "file_search", "vector_store_ids": ["vs_123"]}]

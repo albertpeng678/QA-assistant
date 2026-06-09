@@ -15,3 +15,13 @@ def parse_response(response):
                 if filename and filename not in citations:
                     citations.append(filename)
     return {"answer": "".join(answer_parts), "citations": citations}
+
+
+def answer_question(client, question, *, vector_store_id, model):
+    """以 file_search tool 對 vector store 提問，回傳 answer + citations。"""
+    response = client.responses.create(
+        model=model,
+        input=question,
+        tools=[{"type": "file_search", "vector_store_ids": [vector_store_id]}],
+    )
+    return parse_response(response)
