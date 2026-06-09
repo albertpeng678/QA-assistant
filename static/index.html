@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>法規 RAG 問答</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <main class="max-w-2xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">法規 RAG 問答</h1>
+    <div id="log" class="space-y-3 mb-4"></div>
+    <form id="f" class="flex gap-2">
+      <input id="q" class="flex-1 border rounded px-3 py-2" placeholder="輸入你的法規問題…" />
+      <button class="bg-blue-600 text-white px-4 py-2 rounded">送出</button>
+    </form>
+  </main>
+  <script>
+    const log = document.getElementById("log");
+    document.getElementById("f").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const q = document.getElementById("q").value.trim();
+      if (!q) return;
+      log.innerHTML += `<div class="font-medium">Q: ${q}</div>`;
+      const r = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q }),
+      });
+      const d = await r.json();
+      const cites = (d.citations || []).join("、");
+      log.innerHTML += `<div class="bg-white border rounded p-3">${d.answer}${cites ? `<div class="text-xs text-gray-500 mt-2">來源：${cites}</div>` : ""}</div>`;
+      document.getElementById("q").value = "";
+    });
+  </script>
+</body>
+</html>
