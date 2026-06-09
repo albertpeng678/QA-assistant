@@ -7,10 +7,13 @@ import sys
 from pathlib import Path
 from openai import OpenAI
 
-# chunking 參數由 context7 研究法規 RAG 主流作法後決定：
-# 社群甜蜜點約 512 token / overlap ~size/4；對齊 file search 的兩顆旋鈕。
-MAX_CHUNK_SIZE_TOKENS = 512
-CHUNK_OVERLAP_TOKENS = 128
+# 🎯 缺口 3（研究型，無測試）：chunking 策略
+# 法規 chunking 是長期被深入研究的領域（條文層級、跨條引用）。
+# 請用 context7 MCP 研究：(1) OpenAI file search 的 chunking 參數與範圍限制，
+# (2) 法規 / 長文 RAG 社群的主流 chunking 作法，再決定下面兩個值。
+# 約束：max 介於 100–4096；overlap 須 ≤ max/2。提示見 README「缺口地圖」。
+MAX_CHUNK_SIZE_TOKENS = None  # TODO: context7 研究後填入
+CHUNK_OVERLAP_TOKENS = None   # TODO: context7 研究後填入
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
